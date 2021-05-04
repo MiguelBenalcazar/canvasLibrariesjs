@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Test</title>
+</head>
+
+<body>
+    <button id="addCircle" type="button">Add circle</button>
+    <button id="moveCircle" type="button">Move circle</button>
+    <button id="zoomIn" type="button">+</button>
+    <button id="zoomOut" type="button">-</button>
+
+    <div id="container" style=" height: 100vh; background-color: aquamarine; border: 10px solid black;">
+        <canvas id="demoCanvas" width="500" height="200" style="background-color: black;"> </canvas>
+
+    </div>
+
+    <script src="./createjs.min.js"></script>
+    <!-- <script src="./easeljs.min.js"></script> -->
+    <script>
+        var stage = new createjs.Stage("demoCanvas");
+        stage.enableMouseOver(10);
+
+        // var image = new Image();
+        // image.src = "https://miro.medium.com/max/1200/1*mk1-6aYaf_Bes1E3Imhc0A.jpeg";
+        // // wait to load the image
+        // image.onload = function(evt){
+        //     var bitmap = new createjs.Bitmap(evt.target);
+        //     var width = bitmap.image.width;
+        //     var height = bitmap.image.height;
+            
+        //     stage.addChild(bitmap);
+        //     stage.update();
+        // }
+
+
+        var circle = new createjs.Shape();
+        circle = new createjs.Shape();
+        circle.graphics.beginFill("red").drawCircle(0, 0, 40).endFill();
+        //Set position of Shape instance.
+        circle.x = circle.y = 50;
+        //Add Shape instance to stage display list.
+        stage.addChild(circle);
+        //Update stage will render next frame
+        stage.update();
+
+        circle.addEventListener("click", handleClick);
+
+        function handleClick(event) {
+            console.log("hoala")
+        }
+
+        // circle.addEventListener("mouseover", function () {
+        //     console.log("mouseOver");
+        //     circle.graphics.clear().beginFill('blue').drawCircle(0,0,40).endFill();
+        //     stage.update();
+        // });
+
+        circle.addEventListener("mouseover", function () {
+            console.log("mouseOver");
+            circle.graphics.clear().beginFill('blue').drawCircle(0,0,10).endFill();
+            stage.update();
+        });
+
+        
+        
+        
+        
+        
+    </script>
+
+
+</body>
+
+</html>
