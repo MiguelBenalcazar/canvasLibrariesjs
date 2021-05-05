@@ -6,71 +6,275 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Canvas Test</title>
+    <style>
+        #container {
+            height: 95vh;
+            background-color: #e9ecef;
+
+            /* overflow: scroll; */
+            overflow: hidden;
+            position: relative;
+        }
+
+        #demoCanvas {
+            display: inline-block;
+            position: absolute;
+            z-index: 0;
+            vertical-align: baseline;
+            line-height: 0px;
+            background-color: transparent;
+        }
+
+        #demoCanvasLayer {
+            display: inline-block;
+            position: absolute;
+            z-index: 1;
+            vertical-align: baseline;
+            line-height: 0px;
+            background-color: transparent;
+        }
+    </style>
 </head>
 
 <body>
-    <button id="addCircle" type="button">Add circle</button>
-    <button id="moveCircle" type="button">Move circle</button>
-    <button id="zoomIn" type="button">+</button>
-    <button id="zoomOut" type="button">-</button>
+    <button id="addCircle" type="button" onclick="addCircle()">Add circle</button>
+    <button id="moveCircle" type="button" onclick="insertImage()">Insert Image</button>
+    <button id="zoomIn" type="button" onclick="zoomIn()">+</button>
+    <button id="zoomOut" type="button" onclick="zoomOut()">-</button>
 
-    <div id="container" style=" height: 100vh; background-color: aquamarine; border: 10px solid black;">
-        <canvas id="demoCanvas" width="500" height="200" style="background-color: black;"> </canvas>
+    <div id="container">
+        <canvas id="demoCanvas" class="panzoom" width="500" height="500"></canvas>
+        <canvas id="demoCanvasLayer" class="panzoom" width="500" height="500"></canvas>
 
     </div>
 
     <script src="./createjs.min.js"></script>
+
     <!-- <script src="./easeljs.min.js"></script> -->
     <script>
-        var stage = new createjs.Stage("demoCanvas");
-        stage.enableMouseOver(10);
+        let width = 0;
+        let height = 0;
 
-        // var image = new Image();
-        // image.src = "https://miro.medium.com/max/1200/1*mk1-6aYaf_Bes1E3Imhc0A.jpeg";
-        // // wait to load the image
-        // image.onload = function(evt){
-        //     var bitmap = new createjs.Bitmap(evt.target);
-        //     var width = bitmap.image.width;
-        //     var height = bitmap.image.height;
-            
-        //     stage.addChild(bitmap);
-        //     stage.update();
+        const canvas_img = document.getElementById('demoCanvas');
+        const canvas_layer = document.getElementById('demoCanvasLayer');
+        const ctx_img = canvas_img.getContext("2d")
+        const ctx_layer = canvas_img.getContext("2d")
+
+
+        var stage_img = new createjs.Stage("demoCanvas");
+        var stage_layer = new createjs.Stage("demoCanvasLayer");
+
+
+        stage_img.enableMouseOver(10);
+        stage_layer.enableMouseOver(10);
+
+        //zoom
+
+
+        let scale = 0.1;
+        let memory_scale = 1;
+        let min_scale = 0.2;
+        let max_scale = 3;
+        let mouseDown = false;
+
+        function zoomIn() {
+            if (memory_scale < max_scale) {
+                memory_scale = memory_scale + scale
+
+                canvas_img.height = height * memory_scale;
+                canvas_img.width = width * memory_scale;
+                canvas_layer.height = height * memory_scale;
+                canvas_layer.width = width * memory_scale;
+
+                stage_layer.scale = memory_scale;
+
+                stage_img.scale = memory_scale;
+
+                stage_layer.update();
+                stage_img.update();
+            }
+        }
+
+        function zoomOut() {
+            if (memory_scale > min_scale) {
+                memory_scale = memory_scale - scale
+
+                canvas_img.height = height * memory_scale;
+                canvas_img.width = width * memory_scale;
+                canvas_layer.height = height * memory_scale;
+                canvas_layer.width = width * memory_scale;
+
+                stage_layer.scale = memory_scale;
+
+                stage_img.scale = memory_scale;
+
+                stage_layer.update();
+                stage_img.update();
+
+                console.log(`${canvas_img.height} ${canvas_img.width}`)
+            }
+        }
+
+        canvas_layer.addEventListener("wheel", function (evt) {
+            let scroll = evt.deltaY * -0.01;
+            if (scroll > 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        });
+
+
+        var translatePos = {
+            x: canvas_layer.width / 2,
+            y: canvas_layer.height / 2
+        };
+        var startDragOffset = {};
+
+        canvas_layer.addEventListener("mousedown", function (evt) {
+            mouseDown = true;
+            mouseDown = true;
+            startDragOffset.x = evt.clientX - translatePos.x;
+            startDragOffset.y = evt.clientY - translatePos.y;
+
+        })
+
+
+        canvas_layer.addEventListener("mouseup", function (evt) {
+            mouseDown = false;
+        });
+
+        canvas_layer.addEventListener("mouseover", function (evt) {
+            mouseDown = false;
+        });
+
+        canvas_layer.addEventListener("mouseout", function (evt) {
+            mouseDown = false;
+        });
+
+        canvas_layer.addEventListener("mousemove", function (evt) {
+            if (mouseDown) {
+                translatePos.x = evt.clientX - startDragOffset.x;
+                translatePos.y = evt.clientY - startDragOffset.y;
+                console.log(translatePos.x + " " + translatePos.y)
+            }
+        });
+
+        var positionCanvas = function () {
+            // canvas_layer.style.position = 'absolute';
+            canvas_layer.style.top = window.innerHeight / 2 - canvas_layer.height / 2 ;
+            canvas_layer.style.left = window.innerWidth / 2 - canvas_layer.width / 2;
+            canvas_img.style.top = window.innerHeight / 2 - canvas_layer.height / 2 ;
+            canvas_img.style.left = window.innerWidth / 2 - canvas_layer.width / 2 ;
+        };
+        positionCanvas();
+
+
+
+        var image = new Image();
+        image.src = "https://miro.medium.com/max/1200/1*mk1-6aYaf_Bes1E3Imhc0A.jpeg";
+        // wait to load the image
+        image.onload = function (evt) {
+            var bitmap = new createjs.Bitmap(evt.target);
+            width = canvas_img.width = bitmap.image.width;
+            height = canvas_img.height = bitmap.image.height;
+
+
+        
+
+            stage_img.addChild(bitmap);
+            stage_img.update();
+
+
+            canvas_layer.width = width;
+            canvas_layer.height = height;
+
+            var circle = new createjs.Shape();
+            circle.graphics.beginFill("red").drawCircle(500, 120, 40).endFill();
+            var circle1 = new createjs.Shape();
+            circle1.graphics.beginFill("blue").drawCircle(5, 10, 25).endFill();
+
+
+
+
+            stage_layer.addChild(circle);
+            stage_layer.addChild(circle1);
+            stage_layer.update();
+
+
+
+        }
+
+
+        var variable_names = {};
+
+        function addCircle() {
+            var border = 100
+            for (i = 0; i < border; i++) {
+
+                variable_names['robot_' + i] = new createjs.Shape();
+
+                variable_names['robot_' + i].graphics.beginFill(getRandomColor()).drawCircle(0, 0, 10).endFill();
+                variable_names['robot_' + i].x = getRandomArbitrary(0, width)
+                variable_names['robot_' + i].y = getRandomArbitrary(0, height)
+                variable_names['robot_' + i].name = 'robot_' + i
+                stage_layer.addChild(variable_names['robot_' + i]);
+                stage_layer.update();
+
+                variable_names['robot_' + i].addEventListener('mouseover', handleMouseOver);
+
+            }
+        }
+
+        // function handleTick_robot1(event) {
+        //     var shape = stage_layer.getChildByName("robot_1");
+        //     console.log(shape)
+
+        //     shape.y -= 10;
+        //     stage_layer.update();
         // }
 
 
-        var circle = new createjs.Shape();
-        circle = new createjs.Shape();
-        circle.graphics.beginFill("red").drawCircle(0, 0, 40).endFill();
-        //Set position of Shape instance.
-        circle.x = circle.y = 50;
-        //Add Shape instance to stage display list.
-        stage.addChild(circle);
-        //Update stage will render next frame
-        stage.update();
 
-        circle.addEventListener("click", handleClick);
-
-        function handleClick(event) {
-            console.log("hoala")
+        function getRandomArbitrary(min, max) {
+            return Math.random() * (max - min) + min;
         }
 
-        // circle.addEventListener("mouseover", function () {
-        //     console.log("mouseOver");
-        //     circle.graphics.clear().beginFill('blue').drawCircle(0,0,40).endFill();
-        //     stage.update();
-        // });
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
 
-        circle.addEventListener("mouseover", function () {
-            console.log("mouseOver");
-            circle.graphics.clear().beginFill('blue').drawCircle(0,0,10).endFill();
-            stage.update();
-        });
+        function handleMouseOver(event) {
+            console.log(event.target.name);
+            event.target.graphics.clear().beginFill('blue').drawCircle(51, 100, 100).endFill();
+            event.target.x = getRandomArbitrary(0, width)
+            event.target.y = getRandomArbitrary(0, height)
+            stage_layer.update();
+        }
 
-        
-        
-        
-        
-        
+
+        stage_layer.on("stagemousedown", function (evt) {
+            let x = evt.stageX / stage_layer.scaleX;
+            let y = evt.stageY / stage_layer.scaleY;
+
+            var ellipse = new createjs.Shape();
+            ellipse.graphics.beginStroke("black").drawRect(x - 25, y - 25, 50, 50).endStroke;
+            //create shadow for the object
+            ellipse.shadow = new createjs.Shadow('#000', 4, 4, 5);
+            stage_layer.addChild(ellipse);
+            stage_layer.update();
+
+        })
+
+
+        function insertImage() {
+
+        }
     </script>
 
 
