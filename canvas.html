@@ -6,33 +6,88 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Canvas Test</title>
+    <link rel="stylesheet" href="./fontawesome/css/all.min.css">
     <style>
         #container {
             height: 95vh;
             background-color: #e9ecef;
 
-            /* overflow: scroll; */
-            overflow: hidden;
+            overflow: auto;
+            /* overflow: hidden; */
             position: relative;
         }
 
         #demoCanvas {
             display: inline-block;
             position: absolute;
-            z-index: 0;
+            z-index: auto;
             vertical-align: baseline;
             line-height: 0px;
             background-color: transparent;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%)
         }
 
         #demoCanvasLayer {
             display: inline-block;
             position: absolute;
-            z-index: 1;
+            z-index: auto;
             vertical-align: baseline;
             line-height: 0px;
             background-color: transparent;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%)
         }
+
+        /* scrollbar-style */
+
+        ::-webkit-scrollbar-track {
+            border: 5px solid white;
+            /* // border color does not support transparent on scrollbar */
+            /* // border-color: transparent; */
+            background-color: #b2bec3;
+        }
+
+        ::-webkit-scrollbar {
+            width: 0.4rem;
+            /*vertical scrollbar*/
+            height: 0.4rem;
+            /*horizontal scrollbar*/
+            background-color: #dfe6e9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #6b65d3;
+            border-radius: 10px;
+        }
+
+        /*Button zoom in & out*/
+        #zoom .button{
+            
+            display: block;
+        }
+
+        #zoom{
+            position: absolute;
+            margin: 0.5rem 0 0 0.5rem;
+        }
+
+        .button {
+            background-color: #d5dad8;
+            border: none;
+            color: rgb(16, 21, 82);
+            padding: 1rem;
+            text-align: center;
+            text-decoration: none;
+            font-size: 0.88rem;
+            margin: 4px 2px;
+            border-radius: 10%;  
+        }
+
+        
+ 
     </style>
 </head>
 
@@ -46,6 +101,11 @@
         <canvas id="demoCanvas" class="panzoom" width="500" height="500"></canvas>
         <canvas id="demoCanvasLayer" class="panzoom" width="500" height="500"></canvas>
 
+        <div id="zoom">
+            <button class="button zoomOut"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
+            <button class="button zoomIn"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
+        </div>
+
     </div>
 
     <script src="./createjs.min.js"></script>
@@ -54,6 +114,10 @@
     <script>
         let width = 0;
         let height = 0;
+
+        const container = document.getElementById('container')
+
+
 
         const canvas_img = document.getElementById('demoCanvas');
         const canvas_layer = document.getElementById('demoCanvasLayer');
@@ -71,24 +135,25 @@
         //zoom
 
 
-        let scale = 0.1;
-        let memory_scale = 1;
-        let min_scale = 0.2;
-        let max_scale = 3;
+        let SCROLL_SENSITIVITY = 0.05;
+        let cameraZoom = 1;
+        let MIN_ZOOM = 0.2;
+        let MAX_ZOOM = 3;
         let mouseDown = false;
+        let cameraOffset = {};
 
         function zoomIn() {
-            if (memory_scale < max_scale) {
-                memory_scale = memory_scale + scale
+            if (cameraZoom < MAX_ZOOM) {
+                cameraZoom = cameraZoom + SCROLL_SENSITIVITY
 
-                canvas_img.height = height * memory_scale;
-                canvas_img.width = width * memory_scale;
-                canvas_layer.height = height * memory_scale;
-                canvas_layer.width = width * memory_scale;
+                canvas_img.height = height * cameraZoom;
+                canvas_img.width = width * cameraZoom;
+                canvas_layer.height = height * cameraZoom;
+                canvas_layer.width = width * cameraZoom;
 
-                stage_layer.scale = memory_scale;
+                stage_layer.scale = cameraZoom;
 
-                stage_img.scale = memory_scale;
+                stage_img.scale = cameraZoom;
 
                 stage_layer.update();
                 stage_img.update();
@@ -96,22 +161,21 @@
         }
 
         function zoomOut() {
-            if (memory_scale > min_scale) {
-                memory_scale = memory_scale - scale
+            if (cameraZoom > MIN_ZOOM) {
+                cameraZoom = cameraZoom - SCROLL_SENSITIVITY
 
-                canvas_img.height = height * memory_scale;
-                canvas_img.width = width * memory_scale;
-                canvas_layer.height = height * memory_scale;
-                canvas_layer.width = width * memory_scale;
+                canvas_img.height = height * cameraZoom;
+                canvas_img.width = width * cameraZoom;
+                canvas_layer.height = height * cameraZoom;
+                canvas_layer.width = width * cameraZoom;
 
-                stage_layer.scale = memory_scale;
+                stage_layer.scale = cameraZoom;
 
-                stage_img.scale = memory_scale;
+                stage_img.scale = cameraZoom;
 
                 stage_layer.update();
                 stage_img.update();
 
-                console.log(`${canvas_img.height} ${canvas_img.width}`)
             }
         }
 
@@ -124,70 +188,30 @@
             }
         });
 
-
-        var translatePos = {
-            x: canvas_layer.width / 2,
-            y: canvas_layer.height / 2
-        };
-        var startDragOffset = {};
-
-        canvas_layer.addEventListener("mousedown", function (evt) {
-            mouseDown = true;
-            mouseDown = true;
-            startDragOffset.x = evt.clientX - translatePos.x;
-            startDragOffset.y = evt.clientY - translatePos.y;
-
+        canvas_layer.addEventListener('mouseover', function (evt) {
+            container.style.overflowY = 'hidden';
+        })
+        canvas_layer.addEventListener('mouseout', function (evt) {
+            container.style.overflowY = 'auto';
         })
 
-
-        canvas_layer.addEventListener("mouseup", function (evt) {
-            mouseDown = false;
-        });
-
-        canvas_layer.addEventListener("mouseover", function (evt) {
-            mouseDown = false;
-        });
-
-        canvas_layer.addEventListener("mouseout", function (evt) {
-            mouseDown = false;
-        });
-
-        canvas_layer.addEventListener("mousemove", function (evt) {
-            if (mouseDown) {
-                translatePos.x = evt.clientX - startDragOffset.x;
-                translatePos.y = evt.clientY - startDragOffset.y;
-                console.log(translatePos.x + " " + translatePos.y)
-            }
-        });
-
-        var positionCanvas = function () {
-            // canvas_layer.style.position = 'absolute';
-            canvas_layer.style.top = window.innerHeight / 2 - canvas_layer.height / 2 ;
-            canvas_layer.style.left = window.innerWidth / 2 - canvas_layer.width / 2;
-            canvas_img.style.top = window.innerHeight / 2 - canvas_layer.height / 2 ;
-            canvas_img.style.left = window.innerWidth / 2 - canvas_layer.width / 2 ;
-        };
-        positionCanvas();
 
 
 
         var image = new Image();
         image.src = "https://miro.medium.com/max/1200/1*mk1-6aYaf_Bes1E3Imhc0A.jpeg";
+
         // wait to load the image
         image.onload = function (evt) {
             var bitmap = new createjs.Bitmap(evt.target);
-            width = canvas_img.width = bitmap.image.width;
-            height = canvas_img.height = bitmap.image.height;
+            width = canvas_img.width = canvas_layer.width = bitmap.image.width;
+            height = canvas_img.height = canvas_layer.height = bitmap.image.height;
 
+            cameraOffset = {
+                x: window.innerWidth,
+                y: window.innerHeight
+            }
 
-        
-
-            stage_img.addChild(bitmap);
-            stage_img.update();
-
-
-            canvas_layer.width = width;
-            canvas_layer.height = height;
 
             var circle = new createjs.Shape();
             circle.graphics.beginFill("red").drawCircle(500, 120, 40).endFill();
@@ -197,9 +221,14 @@
 
 
 
+
+            stage_img.addChild(bitmap);
+            stage_img.update();
+
             stage_layer.addChild(circle);
             stage_layer.addChild(circle1);
             stage_layer.update();
+
 
 
 
@@ -259,8 +288,8 @@
 
 
         stage_layer.on("stagemousedown", function (evt) {
-            let x = evt.stageX / stage_layer.scaleX;
-            let y = evt.stageY / stage_layer.scaleY;
+            let x = evt.stageX / stage_layer.scale;
+            let y = evt.stageY / stage_layer.scale;
 
             var ellipse = new createjs.Shape();
             ellipse.graphics.beginStroke("black").drawRect(x - 25, y - 25, 50, 50).endStroke;
