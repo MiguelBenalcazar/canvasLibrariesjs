@@ -9,12 +9,19 @@
     <link rel="stylesheet" href="./fontawesome/css/all.min.css">
     <style>
         #container {
-            height: 95vh;
+            height: 90vh;
             background-color: #e9ecef;
 
-            overflow: auto;
+            overflow: scroll;
             /* overflow: hidden; */
             position: relative;
+
+        }
+
+        #main-container {
+            position: relative;
+            border: solid 1px black;
+            margin: 1.1rem 1.1rem 1.1rem 1.1rem;
         }
 
         #demoCanvas {
@@ -24,9 +31,7 @@
             vertical-align: baseline;
             line-height: 0px;
             background-color: transparent;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%)
+
         }
 
         #demoCanvasLayer {
@@ -36,9 +41,7 @@
             vertical-align: baseline;
             line-height: 0px;
             background-color: transparent;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%)
+
         }
 
         /* scrollbar-style */
@@ -51,79 +54,92 @@
         }
 
         ::-webkit-scrollbar {
-            width: 0.4rem;
+            width: 0.3rem;
             /*vertical scrollbar*/
-            height: 0.4rem;
+            height: 0.3rem;
             /*horizontal scrollbar*/
             background-color: #dfe6e9;
         }
 
         ::-webkit-scrollbar-thumb {
-            background-color: #6b65d3;
+            background-color: #6c757d;
             border-radius: 10px;
         }
 
         /*Button zoom in & out*/
-        #zoom .button{
-            
+        #zoom .button {
+
             display: block;
         }
 
-        #zoom{
+        #zoom {
             position: absolute;
-            margin: 0.5rem 0 0 0.5rem;
+            top: 0.5em;
+            left: 0.5em;
+            width: 0;
+            height: 20em;
+            display: none;
+
+
+            /* margin: 0.5rem 0 0 0.5rem; */
         }
 
         .button {
-            background-color: #d5dad8;
+            height: 3rem;
+            width: 3rem;
+            background-color: #afb1b3;
             border: none;
-            color: rgb(16, 21, 82);
+            color: #255f72;
             padding: 1rem;
-            text-align: center;
+            font-weight: lighter;
+
             text-decoration: none;
             font-size: 0.88rem;
-            margin: 4px 2px;
-            border-radius: 10%;  
-        }
+            margin: 0.5rem 0.2rem;
+            border-radius: 10%;
 
-        
- 
+            -webkit-box-shadow: inset 0.1rem 0.1rem 1rem #979797;
+            -moz-box-shadow: inset 0.1rem 0.1rem 1rem #979797;
+            box-shadow: inset 0.1rem 0.1rem 1rem #979797;
+        }
     </style>
 </head>
 
 <body>
     <button id="addCircle" type="button" onclick="addCircle()">Add circle</button>
     <button id="moveCircle" type="button" onclick="insertImage()">Insert Image</button>
-    <button id="zoomIn" type="button" onclick="zoomIn()">+</button>
-    <button id="zoomOut" type="button" onclick="zoomOut()">-</button>
 
-    <div id="container">
-        <canvas id="demoCanvas" class="panzoom" width="500" height="500"></canvas>
-        <canvas id="demoCanvasLayer" class="panzoom" width="500" height="500"></canvas>
-
-        <div id="zoom">
-            <button class="button zoomOut"><i class="fa fa-search-plus" aria-hidden="true"></i></button>
-            <button class="button zoomIn"><i class="fa fa-search-minus" aria-hidden="true"></i></button>
+    <div id="main-container">
+        <div id="container">
+            <canvas id="demoCanvas" class="panzoom" width="500" height="500"></canvas>
+            <canvas id="demoCanvasLayer" class="panzoom" width="500" height="500"></canvas>
         </div>
 
+        <div id="zoom">
+            <button class="button" onclick="zoomIn()">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+            </button>
+            <button class="button" onclick="zoomOut()">
+                <i class="fa fa-search-minus" aria-hidden="true"></i>
+            </button>
+        </div>
     </div>
+
 
     <script src="./createjs.min.js"></script>
 
     <!-- <script src="./easeljs.min.js"></script> -->
     <script>
-        let width = 0;
-        let height = 0;
+        let size = {
+            width: 0,
+            height: 0
+        }
 
-        const container = document.getElementById('container')
-
-
-
+        const container = document.getElementById('main-container')
         const canvas_img = document.getElementById('demoCanvas');
         const canvas_layer = document.getElementById('demoCanvasLayer');
-        const ctx_img = canvas_img.getContext("2d")
-        const ctx_layer = canvas_img.getContext("2d")
 
+        const zoom_container = document.getElementById('zoom');
 
         var stage_img = new createjs.Stage("demoCanvas");
         var stage_layer = new createjs.Stage("demoCanvasLayer");
@@ -139,17 +155,23 @@
         let cameraZoom = 1;
         let MIN_ZOOM = 0.2;
         let MAX_ZOOM = 3;
-        let mouseDown = false;
-        let cameraOffset = {};
+
+        let main_container_size = {
+            width: 0,
+            height: 0
+        }
+
+
+
 
         function zoomIn() {
             if (cameraZoom < MAX_ZOOM) {
                 cameraZoom = cameraZoom + SCROLL_SENSITIVITY
 
-                canvas_img.height = height * cameraZoom;
-                canvas_img.width = width * cameraZoom;
-                canvas_layer.height = height * cameraZoom;
-                canvas_layer.width = width * cameraZoom;
+                canvas_img.height = size.height * cameraZoom;
+                canvas_img.width = size.width * cameraZoom;
+                canvas_layer.height = size.height * cameraZoom;
+                canvas_layer.width = size.width * cameraZoom;
 
                 stage_layer.scale = cameraZoom;
 
@@ -164,10 +186,10 @@
             if (cameraZoom > MIN_ZOOM) {
                 cameraZoom = cameraZoom - SCROLL_SENSITIVITY
 
-                canvas_img.height = height * cameraZoom;
-                canvas_img.width = width * cameraZoom;
-                canvas_layer.height = height * cameraZoom;
-                canvas_layer.width = width * cameraZoom;
+                canvas_img.height = size.height * cameraZoom;
+                canvas_img.width = size.width * cameraZoom;
+                canvas_layer.height = size.height * cameraZoom;
+                canvas_layer.width = size.width * cameraZoom;
 
                 stage_layer.scale = cameraZoom;
 
@@ -179,22 +201,45 @@
             }
         }
 
-        canvas_layer.addEventListener("wheel", function (evt) {
-            let scroll = evt.deltaY * -0.01;
-            if (scroll > 0) {
-                zoomIn();
+        container.addEventListener("wheel", function (evt) {
+
+
+            if (evt.altKey) {
+                let scroll = evt.deltaY * -0.01;
+                if (scroll > 0) {
+                    zoomIn();
+                } else {
+                    zoomOut();
+                }
+                container.style.overflowY = 'hidden';
             } else {
-                zoomOut();
+                container.style.overflowY = 'auto';
             }
+
         });
 
-        canvas_layer.addEventListener('mouseover', function (evt) {
-            container.style.overflowY = 'hidden';
-        })
-        canvas_layer.addEventListener('mouseout', function (evt) {
-            container.style.overflowY = 'auto';
-        })
+        container.addEventListener("mouseover", function (evt) {
+            zoom_container.style.display = 'inline';
 
+
+        });
+        container.addEventListener("mouseout", function (evt) {
+            zoom_container.style.display = 'none';
+        });
+
+
+
+
+
+
+
+
+        // canvas_layer.addEventListener('mouseover', function (evt) {
+        //     container.style.overflowY = 'hidden';
+        // })
+        // canvas_layer.addEventListener('mouseout', function (evt) {
+        //     container.style.overflowY = 'auto';
+        // })
 
 
 
@@ -204,13 +249,8 @@
         // wait to load the image
         image.onload = function (evt) {
             var bitmap = new createjs.Bitmap(evt.target);
-            width = canvas_img.width = canvas_layer.width = bitmap.image.width;
-            height = canvas_img.height = canvas_layer.height = bitmap.image.height;
-
-            cameraOffset = {
-                x: window.innerWidth,
-                y: window.innerHeight
-            }
+            size.width = canvas_img.width = canvas_layer.width = bitmap.image.width;
+            size.height = canvas_img.height = canvas_layer.height = bitmap.image.height;
 
 
             var circle = new createjs.Shape();
@@ -218,8 +258,13 @@
             var circle1 = new createjs.Shape();
             circle1.graphics.beginFill("blue").drawCircle(5, 10, 25).endFill();
 
+            
 
+            main_container_size.width = container.getBoundingClientRect().width;
+            main_container_size.height = container.getBoundingClientRect().height;
 
+            canvas_img.style.top = main_container_size.width / 2
+            canvas_img.style.left = main_container_size.height / 2
 
 
             stage_img.addChild(bitmap);
@@ -228,9 +273,7 @@
             stage_layer.addChild(circle);
             stage_layer.addChild(circle1);
             stage_layer.update();
-
-
-
+            
 
         }
 
@@ -244,8 +287,8 @@
                 variable_names['robot_' + i] = new createjs.Shape();
 
                 variable_names['robot_' + i].graphics.beginFill(getRandomColor()).drawCircle(0, 0, 10).endFill();
-                variable_names['robot_' + i].x = getRandomArbitrary(0, width)
-                variable_names['robot_' + i].y = getRandomArbitrary(0, height)
+                variable_names['robot_' + i].x = getRandomArbitrary(0, size.width)
+                variable_names['robot_' + i].y = getRandomArbitrary(0, size.height)
                 variable_names['robot_' + i].name = 'robot_' + i
                 stage_layer.addChild(variable_names['robot_' + i]);
                 stage_layer.update();
@@ -278,11 +321,10 @@
             return color;
         }
 
-        function handleMouseOver(event) {
-            console.log(event.target.name);
-            event.target.graphics.clear().beginFill('blue').drawCircle(51, 100, 100).endFill();
-            event.target.x = getRandomArbitrary(0, width)
-            event.target.y = getRandomArbitrary(0, height)
+        function handleMouseOver(evt) {
+            evt.target.graphics.clear().beginFill('blue').drawCircle(51, 100, 100).endFill();
+            evt.target.x = getRandomArbitrary(0, size.width)
+            evt.target.y = getRandomArbitrary(0, size.height)
             stage_layer.update();
         }
 
