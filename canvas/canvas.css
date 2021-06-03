@@ -1,0 +1,137 @@
+#main-container {
+    position: relative;
+    border-radius: 2rem;
+    margin: 1.1rem 1.1rem 1.1rem 1.1rem;
+    /* border: solid 1px black; */
+}
+
+#container {
+    height: 90vh;
+    overflow: auto;
+    position: relative;
+    border-radius: 1rem;
+    background-image: radial-gradient(circle, #ededed, #f1f1f2, #f3f5f7, #f6fafb, #f8feff);
+    /* display: flex;
+    align-items: center;
+    justify-content: center; */
+}
+
+#canvasMap {
+    position: absolute;
+    z-index: auto;
+    background-color: transparent;
+    /* left: 50%; */
+    /* top: 50%; */
+    /* transform: translate(-50%, -50%); */
+}
+
+#canvasLayer {
+    position: absolute;
+    z-index: auto;
+    background-color: transparent;
+    /* left: 50%; */
+    /* top: 50%; */
+    /* transform: translate(-50%, -50%); */
+}
+
+
+/* scrollbar-style */
+
+#container::-webkit-scrollbar-track {
+    background-color: rgba(206, 212, 218, 0.5);
+    /* border: 1.35rem solid rgba(206, 212, 218, 0.5); */
+    /* // border color does not support transparent on scrollbar */
+    /* // border-color: transparent; */
+}
+
+#container::-webkit-scrollbar {
+    width: 0.5rem;
+    /*vertical scrollbar*/
+    height: 0.5rem;
+    /*horizontal scrollbar*/
+    background-color: rgba(206, 212, 218, 0.5);
+}
+
+#container::-webkit-scrollbar-thumb {
+    background-color: #a5a5a5;
+    border: 0.08rem solid white;
+    /* background-image: linear-gradient(to right, #44ceff, #4dcffd, #56d1fc, #5ed2fa, #65d3f9); */
+    border-radius: 1rem;
+    /* background: linear-gradient(-180deg, #BCC5CE 0%, #929EAD 98%), radial-gradient(at top left, rgba(255, 255, 255, 0.30) 0%, rgba(0, 0, 0, 0.30) 100%);
+    background-blend-mode: screen; */
+    /* background-image: linear-gradient(to top, #1e3c72 0%, #1e3c72 1%, #2a5298 100%); */
+}
+
+
+/*Button zoom in & out*/
+
+#zoom .button {
+    display: block;
+}
+
+#zoom {
+    position: absolute;
+    /* top: 0.5em;
+    left: 0.5em; */
+    width: 5rem;
+    height: 10rem;
+    display: none;
+    top: 0.5em;
+    right: 0.8em;
+    opacity: 50%;
+}
+
+#zoom:hover {
+    opacity: 100%;
+}
+
+.button {
+    height: 2rem;
+    width: 2rem;
+    border: none;
+    color: #ffffff;
+    font-weight: 2rem;
+    text-decoration: none;
+    font-size: 1.2rem;
+    text-shadow: 2px 2px 5px #091018;
+    margin: 0.5rem 0.2rem;
+    border-radius: 0.5rem;
+    background-image: linear-gradient(to left top, #e1e1e1, #e1e1e2, #e2e1e2, #e3e0e2, #e5e0e2, #e3dee0, #e2ddde, #e0dbdc, #dbd7d9, #d5d4d5, #d0d0d1, #cccccc);
+    margin: 1.2rem;
+}
+
+.button:hover {
+    background-image: linear-gradient(to left top, #c2b5b5, #c1b6b6, #c0b6b6, #bfb7b7, #beb7b7, #bfb9b9, #bfbabb, #c0bcbd, #c3c0c1, #c5c4c5, #c8c8c9, #cccccc);
+}
+
+.button:active {
+    background-color: #272c33;
+    box-shadow: 0 5px 5px rgb(29, 39, 53);
+    transform: translateY(3px);
+}
+
+#canvasInformation {
+    position: absolute;
+    top: 0.5em;
+    left: 0.5em;
+    background-color: transparent;
+}
+
+#canvasInformation {
+    padding: 1.2rem;
+    border-radius: 1.1rem;
+    background-color: rgba(245, 238, 243, 0.5);
+    opacity: 50%;
+    font-size: 0.92rem;
+    font-weight: 500;
+    /* disable to copy text */
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#canvasInformation:hover {
+    opacity: 100%;
+}

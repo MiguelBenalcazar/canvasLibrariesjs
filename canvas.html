@@ -11,19 +11,17 @@
         #container {
             height: 90vh;
             background-color: #e9ecef;
-
             overflow: scroll;
             /* overflow: hidden; */
             position: relative;
-
         }
-
+        
         #main-container {
             position: relative;
             border: solid 1px black;
             margin: 1.1rem 1.1rem 1.1rem 1.1rem;
         }
-
+        
         #demoCanvas {
             display: inline-block;
             position: absolute;
@@ -31,9 +29,8 @@
             vertical-align: baseline;
             line-height: 0px;
             background-color: transparent;
-
         }
-
+        
         #demoCanvasLayer {
             display: inline-block;
             position: absolute;
@@ -41,37 +38,34 @@
             vertical-align: baseline;
             line-height: 0px;
             background-color: transparent;
-
         }
-
         /* scrollbar-style */
-
-        ::-webkit-scrollbar-track {
+        
+         ::-webkit-scrollbar-track {
             border: 5px solid white;
             /* // border color does not support transparent on scrollbar */
             /* // border-color: transparent; */
             background-color: #b2bec3;
         }
-
-        ::-webkit-scrollbar {
+        
+         ::-webkit-scrollbar {
             width: 0.3rem;
             /*vertical scrollbar*/
             height: 0.3rem;
             /*horizontal scrollbar*/
             background-color: #dfe6e9;
         }
-
-        ::-webkit-scrollbar-thumb {
+        
+         ::-webkit-scrollbar-thumb {
             background-color: #6c757d;
             border-radius: 10px;
         }
-
         /*Button zoom in & out*/
+        
         #zoom .button {
-
             display: block;
         }
-
+        
         #zoom {
             position: absolute;
             top: 0.5em;
@@ -79,28 +73,35 @@
             width: 0;
             height: 20em;
             display: none;
-
-
             /* margin: 0.5rem 0 0 0.5rem; */
         }
-
+        
         .button {
             height: 3rem;
             width: 3rem;
-            background-color: #afb1b3;
+            /* background-color: #4361ee; */
             border: none;
-            color: #255f72;
-            padding: 1rem;
-            font-weight: lighter;
-
+            color: #ffffff;
+            /* padding: 1rem; */
+            font-weight: 2rem;
             text-decoration: none;
-            font-size: 0.88rem;
+            font-size: 2rem;
             margin: 0.5rem 0.2rem;
             border-radius: 10%;
-
-            -webkit-box-shadow: inset 0.1rem 0.1rem 1rem #979797;
+            /* -webkit-box-shadow: inset 0.1rem 0.1rem 1rem #979797;
             -moz-box-shadow: inset 0.1rem 0.1rem 1rem #979797;
-            box-shadow: inset 0.1rem 0.1rem 1rem #979797;
+            box-shadow: inset 0.1rem 0.1rem 1rem #979797; */
+            background: #00c6ff;
+            /* fallback for old browsers */
+            background: -webkit-linear-gradient(to right, #0072ff, #00c6ff);
+            /* Chrome 10-25, Safari 5.1-6 */
+            background: linear-gradient(to right, #0072ff, #00c6ff);
+            /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+            opacity: 50%;
+        }
+        
+        .zoom:hover {
+            opacity: 100%;
         }
     </style>
 </head>
@@ -116,13 +117,11 @@
         </div>
 
         <div id="zoom">
-            <button class="button" onclick="zoomIn()">
-                <i class="fa fa-search-plus" aria-hidden="true"></i>
-            </button>
-            <button class="button" onclick="zoomOut()">
-                <i class="fa fa-search-minus" aria-hidden="true"></i>
-            </button>
+            <button class="button" onclick="zoomIn()"> + </button>
+            <button class="button" onclick="zoomOut()"> - </button>
         </div>
+
+
     </div>
 
 
@@ -150,11 +149,12 @@
 
         //zoom
 
-
         let SCROLL_SENSITIVITY = 0.05;
         let cameraZoom = 1;
         let MIN_ZOOM = 0.2;
         let MAX_ZOOM = 3;
+        let FLAG_DISABLE_VERTICAL_SIDEBAR = true;
+
 
         let main_container_size = {
             width: 0,
@@ -201,30 +201,30 @@
             }
         }
 
-        container.addEventListener("wheel", function (evt) {
+        container.addEventListener("wheel", function(evt) {
 
 
             if (evt.altKey) {
                 let scroll = evt.deltaY * -0.01;
+                container.style.overflowY = 'hidden';
                 if (scroll > 0) {
                     zoomIn();
                 } else {
                     zoomOut();
                 }
-                container.style.overflowY = 'hidden';
-            } else {
-                container.style.overflowY = 'auto';
             }
 
+
+
         });
 
-        container.addEventListener("mouseover", function (evt) {
+        container.addEventListener("mouseover", function(evt) {
             zoom_container.style.display = 'inline';
-
-
         });
-        container.addEventListener("mouseout", function (evt) {
+
+        container.addEventListener("mouseout", function(evt) {
             zoom_container.style.display = 'none';
+
         });
 
 
@@ -244,10 +244,11 @@
 
 
         var image = new Image();
-        image.src = "https://miro.medium.com/max/1200/1*mk1-6aYaf_Bes1E3Imhc0A.jpeg";
+        // image.src = "https://miro.medium.com/max/1200/1*mk1-6aYaf_Bes1E3Imhc0A.jpeg";
+        image.src = "./cat.jpg"
 
         // wait to load the image
-        image.onload = function (evt) {
+        image.onload = function(evt) {
             var bitmap = new createjs.Bitmap(evt.target);
             size.width = canvas_img.width = canvas_layer.width = bitmap.image.width;
             size.height = canvas_img.height = canvas_layer.height = bitmap.image.height;
@@ -258,13 +259,13 @@
             var circle1 = new createjs.Shape();
             circle1.graphics.beginFill("blue").drawCircle(5, 10, 25).endFill();
 
-            
+
 
             main_container_size.width = container.getBoundingClientRect().width;
             main_container_size.height = container.getBoundingClientRect().height;
 
-            canvas_img.style.top = main_container_size.width / 2
-            canvas_img.style.left = main_container_size.height / 2
+            // canvas_img.style.top = main_container_size.width / 2
+            // canvas_img.style.left = main_container_size.height / 2
 
 
             stage_img.addChild(bitmap);
@@ -273,7 +274,9 @@
             stage_layer.addChild(circle);
             stage_layer.addChild(circle1);
             stage_layer.update();
-            
+
+
+
 
         }
 
@@ -329,7 +332,7 @@
         }
 
 
-        stage_layer.on("stagemousedown", function (evt) {
+        stage_layer.on("stagemousedown", function(evt) {
             let x = evt.stageX / stage_layer.scale;
             let y = evt.stageY / stage_layer.scale;
 
@@ -341,11 +344,6 @@
             stage_layer.update();
 
         })
-
-
-        function insertImage() {
-
-        }
     </script>
 
 
