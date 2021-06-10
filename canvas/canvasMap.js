@@ -14,9 +14,12 @@ let canvasPercentage = document.getElementById('canvasPercentage');
 var stage_img = new createjs.Stage("canvasMap");
 var stage_layer = new createjs.Stage("canvasLayer");
 
+let refreshFrequency = 30;
+
 
 stage_img.enableMouseOver(10);
 stage_layer.enableMouseOver(10);
+
 
 
 var containerSize = {
@@ -121,8 +124,8 @@ function zoomIn() {
         stage_layer.scale = cameraZoom;
         stage_img.scale = cameraZoom;
 
-        stage_layer.update();
-        stage_img.update();
+        // stage_layer.update();
+        // stage_img.update();
 
 
     }
@@ -149,11 +152,12 @@ function zoomOut() {
         stage_layer.scale = cameraZoom;
         stage_img.scale = cameraZoom;
 
-        stage_layer.update();
-        stage_img.update();
+        // stage_layer.update();
+        // stage_img.update();
 
 
     }
+
 
 
 
@@ -225,9 +229,23 @@ container.addEventListener("wheel", (evt) => {
 
 
 
+
 // ------------------------------------------------------------------------------------------------------------
 // LOAD IMAGE IN CANVAS
 // ------------------------------------------------------------------------------------------------------------
+
+createjs.Ticker.setFPS(refreshFrequency);
+createjs.Ticker.addEventListener("tick", function() {
+    stage_img.update();
+    stage_layer.update();
+
+});
+
+// ------------------------------------------------------------------------------------------------------------
+// LOAD IMAGE IN CANVAS
+// ------------------------------------------------------------------------------------------------------------
+
+
 
 var image = new Image();
 // image.src = "https://miro.medium.com/max/1200/1*mk1-6aYaf_Bes1E3Imhc0A.jpeg";
@@ -239,8 +257,11 @@ image.onload = (evt) => {
 
     var bitmap = new createjs.Bitmap(evt.target);
 
-    size.width = canvas_img.width = canvas_layer.width = bitmap.image.width;
-    size.height = canvas_img.height = canvas_layer.height = bitmap.image.height;
+    size.width = bitmap.image.width;
+    size.height = bitmap.image.height;
+
+    canvas_img.width = canvas_layer.width = bitmap.image.width;
+    canvas_img.height = canvas_layer.height = bitmap.image.height;
 
     currentSize.width = size.width
     currentSize.height = size.height
@@ -251,11 +272,11 @@ image.onload = (evt) => {
     circle1.graphics.beginFill("blue").drawCircle(5, 10, 25).endFill();
 
     stage_img.addChild(bitmap);
-    stage_img.update();
+    // stage_img.update();
 
     stage_layer.addChild(circle);
     stage_layer.addChild(circle1);
-    stage_layer.update();
+    // stage_layer.update();
 
     canvasMapInformation();
     containerSize = updateContainerSize(containerSize);
@@ -309,6 +330,73 @@ containerCanvas.addEventListener('mousemove', (evt) => {
     }
 })
 
+// ------------------------------------------------------------------------------------------------------------
+// ROTATION 
+// ------------------------------------------------------------------------------------------------------------
+
+
+
+
+// let active = false,
+//     angle = 0,
+//     rotation = 0,
+//     startAngle = 0,
+//     center = {
+//         x: 0,
+//         y: 0
+//     },
+//     R2D = 180 / Math.PI;
+
+
+
+// containerCanvas.addEventListener('mousedown', (evt) => {
+//     evt.preventDefault();
+//     let bb = containerCanvas.getBoundingClientRect(),
+//         top = bb.top,
+//         left = bb.left,
+//         height = bb.height,
+//         width = bb.width,
+//         x, y;
+//     center = {
+//         x: left + (width / 2),
+//         y: top + (height / 2)
+//     };
+//     x = evt.clientX - center.x;
+//     y = evt.clientY - center.y;
+//     startAngle = R2D * Math.atan2(y, x);
+//     active = true;
+
+// })
+
+
+// $(document).ready(function() {
+//     $(document).bind('mousemove', function(evt) {
+//         if (active === true) {
+//             evt.preventDefault();
+//             rotate(evt);
+//         }
+//     });
+
+//     $(document).bind('mouseup', function(evt) {
+//         evt.preventDefault();
+//         stop(evt);
+//     });
+// });
+
+// function rotate(evt) {
+//     evt.preventDefault();
+//     var x = evt.clientX - center.x,
+//         y = evt.clientY - center.y,
+//         d = R2D * Math.atan2(y, x);
+//     rotation = d - startAngle;
+//     return containerCanvas.style.transform = "rotate(" + (angle + rotation) + "deg)";
+// };
+
+// function stop() {
+//     angle += rotation;
+//     return active = false;
+// };
+
 
 
 // ------------------------------------------------------------------------------------------------------------
@@ -329,7 +417,7 @@ function addCircle() {
         variable_names['robot_' + i].y = getRandomArbitrary(0, size.height)
         variable_names['robot_' + i].name = 'robot_' + i
         stage_layer.addChild(variable_names['robot_' + i]);
-        stage_layer.update();
+        // stage_layer.update();
 
         variable_names['robot_' + i].addEventListener('mouseover', handleMouseOver);
 
@@ -363,7 +451,7 @@ function handleMouseOver(evt) {
     evt.target.graphics.clear().beginFill('blue').drawCircle(51, 100, 100).endFill();
     evt.target.x = getRandomArbitrary(0, size.width)
     evt.target.y = getRandomArbitrary(0, size.height)
-    stage_layer.update();
+        // stage_layer.update();
 }
 
 
@@ -376,6 +464,6 @@ stage_layer.on("stagemousedown", (evt) => {
     //create shadow for the object
     ellipse.shadow = new createjs.Shadow('#000', 4, 4, 5);
     stage_layer.addChild(ellipse);
-    stage_layer.update();
+    // stage_layer.update();
 
 })

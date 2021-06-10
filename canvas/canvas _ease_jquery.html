@@ -16,13 +16,17 @@
 
     <div id="main-container">
         <div id="container">
-            <canvas id="canvasMap" class="panzoom" width="500" height="500"></canvas>
-            <canvas id="canvasLayer" class="panzoom" width="500" height="500"></canvas>
+            <div>
+                <canvas id="canvasMap" class="panzoom" width="500" height="500"></canvas>
+                <canvas id="canvasLayer" class="panzoom" width="500" height="500"></canvas>
+            </div>
+
         </div>
 
         <div id="zoom">
             <button class="button" onclick="zoomIn()"> + </button>
             <button class="button" onclick="zoomOut()"> - </button>
+            <button class="button" onclick="rotate()"> rotate </button>
         </div>
 
         <div id="canvasInformation">
@@ -39,8 +43,10 @@
         </div>
     </div>
 
+    <script src="./jquery-3.6.0.min.js"></script>
     <script src="./createjs.min.js"></script>
     <script src="./canvasMap.js"></script>
+
 </body>
 
 </html>
