@@ -20,7 +20,7 @@
     position: absolute;
     z-index: auto;
     background-color: transparent;
-    /* border: solid 5px black; */
+    border: solid 5px black;
 }
 
 
