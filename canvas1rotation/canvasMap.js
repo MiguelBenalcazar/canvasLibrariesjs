@@ -361,6 +361,8 @@ containerCanvas.addEventListener("mousemove", (evt) => {
     }
 
     changeCursor(canvas_img, "grabbing");
+    clickPrevious.x = x ;
+    clickPrevious.y = y ;
   }
 });
 
